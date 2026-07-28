@@ -25,20 +25,25 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      # --include=dev：确保 vite 等 devDependencies 一定被安装，
+      # 防止环境存在 NODE_ENV=production 时 npm ci 跳过 devDependencies
+      - run: npm ci --include=dev
 
       # 项目页（username.github.io/仓库名）需要 base 路径；
-      # 如果你的仓库名就是 username.github.io，把下面 --base 参数删掉即可
-      - run: npm run build -- --base=/${{ github.event.repository.name }}/
+      # 如果你的仓库名就是 username.github.io，把下面 --base 参数删掉即可。
+      # 注意：不能用 npm run build -- --base=...，那样参数会被追加到
+      # esbuild 命令后面而不是 vite；Pages 只需要静态产物，直接跑 vite build。
+      - run: npx vite build --base=/${{ github.event.repository.name }}/
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - uses: actions/configure-pages@v5
 
+      # vite.config.ts 里 build.outDir 是 dist/public
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: dist/public
 
   deploy:
     needs: build
