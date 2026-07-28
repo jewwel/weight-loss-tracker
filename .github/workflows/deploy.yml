@@ -30,6 +30,9 @@ jobs:
       # 项目页（username.github.io/仓库名）需要 base 路径；
       # 如果你的仓库名就是 username.github.io，把下面 --base 参数删掉即可
       - run: npm run build -- --base=/${{ github.event.repository.name }}/
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - uses: actions/configure-pages@v5
 
