@@ -30,6 +30,38 @@ export const daysLeft = (today: Date): number =>
 export const dayIndex = (today: Date): number =>
   Math.max(0, differenceInCalendarDays(today, PLAN_START))
 
+/**
+ * 目标体重曲线（贴近真实减重过程，不是直线）：
+ *  - 第 1 周左右掉得偏快（糖原和水分流失）
+ *  - 中期有一段平台期（身体适应 deficit，体重停滞）
+ *  - 后期代谢下降、速度放缓，平缓接近目标
+ * 用「时间进度 → 减重进度」锚点分段线性插值，渲染时图表再做平滑。
+ * 返回当日目标体重（kg，保留 1 位小数）。
+ */
+const TARGET_ANCHORS: Array<[number, number]> = [
+  [0, 0], // 起点
+  [0.08, 0.16], // 初期快速下降（水分）
+  [0.25, 0.4],
+  [0.45, 0.62],
+  [0.58, 0.68], // 平台期：体重几乎不动
+  [0.64, 0.7],
+  [0.82, 0.87],
+  [1, 1], // 后期放缓，抵达目标
+]
+
+export function targetWeightAt(dayIdx: number, startWeight: number): number {
+  const total = differenceInCalendarDays(PLAN_END, PLAN_START)
+  const toLose = startWeight - GOAL_WEIGHT
+  if (total <= 0 || toLose <= 0) return startWeight
+  const x = Math.min(Math.max(dayIdx / total, 0), 1)
+  let i = 1
+  while (i < TARGET_ANCHORS.length - 1 && TARGET_ANCHORS[i][0] < x) i++
+  const [x0, y0] = TARGET_ANCHORS[i - 1]
+  const [x1, y1] = TARGET_ANCHORS[i]
+  const progress = y0 + ((y1 - y0) * (x - x0)) / (x1 - x0)
+  return Math.round((startWeight - toLose * progress) * 10) / 10
+}
+
 export const isFutureDay = (d: Date, today: Date): boolean =>
   differenceInCalendarDays(d, today) > 0
 

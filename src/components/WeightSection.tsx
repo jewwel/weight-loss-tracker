@@ -5,6 +5,7 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  Line,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -20,22 +21,29 @@ import {
   PLAN_START,
   dateKey,
   daysLeft,
+  targetWeightAt,
 } from '@/lib/plan'
 
 interface ChartPoint {
   key: string
   label: string
   weight: number | null
+  target: number | null
 }
 
 function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: ChartPoint }> }) {
   if (!active || !payload?.length) return null
   const p = payload[0].payload
-  if (p.weight == null) return null
+  if (p.weight == null && p.target == null) return null
   return (
     <div className="rounded-2xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-2.5 shadow-soft">
       <p className="text-xs text-[#9B9084]">{p.key}</p>
-      <p className="font-serif-sc text-lg font-semibold text-[#5C544B]">{p.weight.toFixed(1)} kg</p>
+      {p.weight != null && (
+        <p className="font-serif-sc text-lg font-semibold text-[#5C544B]">{p.weight.toFixed(1)} kg</p>
+      )}
+      {p.target != null && (
+        <p className="text-xs text-[#8FA383]">今日目标 {p.target.toFixed(1)} kg</p>
+      )}
     </div>
   )
 }
@@ -117,10 +125,11 @@ export default function WeightSection({
         key,
         label: format(d, 'MM-dd'),
         weight: key <= todayKey ? weights[key] ?? null : null,
+        target: startWeight != null ? targetWeightAt(i, startWeight) : null,
       })
     }
     return points
-  }, [weights, todayKey])
+  }, [weights, todayKey, startWeight])
 
   const yDomain = useMemo<[number, number]>(() => {
     const vals = chartData
@@ -331,8 +340,19 @@ export default function WeightSection({
 
       {/* 曲线 */}
       <div className="shadow-soft rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-5 sm:px-6">
-        {hasAnyWeight ? (
-          <div className="h-64 w-full sm:h-72">
+        {hasAnyWeight || startWeight != null ? (
+          <>
+            <div className="mb-2 flex items-center gap-4 px-2 text-xs text-[#9B9084]">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-0.5 w-5 rounded bg-[#E8967A]" />
+                实际体重
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-0 w-5 border-t-2 border-dashed border-[#8FA383]" />
+                目标曲线（贴近真实减重节奏）
+              </span>
+            </div>
+            <div className="h-64 w-full sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 12, right: 12, bottom: 0, left: -18 }}>
                 <defs>
@@ -378,16 +398,26 @@ export default function WeightSection({
                   dot={{ r: 3, fill: '#E8967A', strokeWidth: 0 }}
                   activeDot={{ r: 5, fill: '#DE8465', stroke: '#fff', strokeWidth: 2 }}
                 />
+                <Line
+                  type="monotone"
+                  dataKey="target"
+                  stroke="#8FA383"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  dot={false}
+                  activeDot={{ r: 4, fill: '#8FA383', stroke: '#fff', strokeWidth: 2 }}
+                />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+            </div>
+          </>
         ) : (
           <div className="flex h-48 flex-col items-center justify-center text-center">
             <CalendarHeart className="mb-3 h-8 w-8 text-[#F2B8A0]" />
             <p className="text-sm text-[#9B9084]">
-              还没有体重记录，明早称一次，
+              先在上面记录起始体重，
               <br />
-              曲线就会从这里开始生长。
+              目标曲线和体重曲线就会从这里开始生长。
             </p>
           </div>
         )}
