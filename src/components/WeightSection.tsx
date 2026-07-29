@@ -3,8 +3,8 @@ import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import {
   Area,
-  AreaChart,
   CartesianGrid,
+  ComposedChart,
   Line,
   ReferenceLine,
   ResponsiveContainer,
@@ -115,6 +115,13 @@ export default function WeightSection({
     return last ? { key: last, value: weights[last] } : null
   }, [weights, todayKey])
 
+  // 目标曲线的起点体重：优先起始体重；没设置时用最早一条体重记录兜底
+  const curveStartWeight = useMemo(() => {
+    if (startWeight != null) return startWeight
+    const keys = Object.keys(weights).sort()
+    return keys.length > 0 ? weights[keys[0]] : null
+  }, [startWeight, weights])
+
   const chartData = useMemo<ChartPoint[]>(() => {
     const total = differenceInCalendarDays(PLAN_END, PLAN_START)
     const points: ChartPoint[] = []
@@ -125,11 +132,11 @@ export default function WeightSection({
         key,
         label: format(d, 'MM-dd'),
         weight: key <= todayKey ? weights[key] ?? null : null,
-        target: startWeight != null ? targetWeightAt(i, startWeight) : null,
+        target: curveStartWeight != null ? targetWeightAt(i, curveStartWeight) : null,
       })
     }
     return points
-  }, [weights, todayKey, startWeight])
+  }, [weights, todayKey, curveStartWeight])
 
   const yDomain = useMemo<[number, number]>(() => {
     const vals = chartData
@@ -354,7 +361,7 @@ export default function WeightSection({
             </div>
             <div className="h-64 w-full sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 12, right: 12, bottom: 0, left: -18 }}>
+              <ComposedChart data={chartData} margin={{ top: 12, right: 12, bottom: 0, left: -18 }}>
                 <defs>
                   <linearGradient id="warmGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#F2B8A0" stopOpacity={0.45} />
@@ -407,7 +414,7 @@ export default function WeightSection({
                   dot={false}
                   activeDot={{ r: 4, fill: '#8FA383', stroke: '#fff', strokeWidth: 2 }}
                 />
-              </AreaChart>
+              </ComposedChart>
             </ResponsiveContainer>
             </div>
           </>
