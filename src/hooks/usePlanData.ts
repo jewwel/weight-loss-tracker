@@ -121,8 +121,13 @@ export function usePlanData() {
       if (!userId) return
       supabase
         .from('plan_settings')
-        .upsert({ user_id: userId, start_weight: w, updated_at: new Date().toISOString() })
-        .then(() => {})
+        .upsert(
+          { user_id: userId, start_weight: w, updated_at: new Date().toISOString() },
+          { onConflict: 'user_id' },
+        )
+        .then(({ error }) => {
+          if (error) console.error('[sync] 保存起始体重失败:', error.message)
+        })
     },
     [userId],
   )
@@ -133,8 +138,13 @@ export function usePlanData() {
       if (!userId) return
       supabase
         .from('weight_entries')
-        .upsert({ user_id: userId, date: key, weight: w })
-        .then(() => {})
+        .upsert(
+          { user_id: userId, date: key, weight: w },
+          { onConflict: 'user_id,date' },
+        )
+        .then(({ error }) => {
+          if (error) console.error('[sync] 保存体重失败:', error.message)
+        })
     },
     [userId],
   )
@@ -152,7 +162,9 @@ export function usePlanData() {
         .delete()
         .eq('user_id', userId)
         .eq('date', key)
-        .then(() => {})
+        .then(({ error }) => {
+          if (error) console.error('[sync] 删除体重失败:', error.message)
+        })
     },
     [userId],
   )
@@ -174,8 +186,13 @@ export function usePlanData() {
       if (userId) {
         supabase
           .from('checkins')
-          .upsert({ user_id: userId, date: key, item_key: item, done: newValue })
-          .then(() => {})
+          .upsert(
+            { user_id: userId, date: key, item_key: item, done: newValue },
+            { onConflict: 'user_id,date,item_key' },
+          )
+          .then(({ error }) => {
+            if (error) console.error('[sync] 保存打卡失败:', error.message)
+          })
       }
       return newValue
     },
@@ -213,11 +230,15 @@ export function usePlanData() {
     setImportPending(true)
     ;(async () => {
       if (legacyData.startWeight != null) {
-        await supabase.from('plan_settings').upsert({
-          user_id: userId,
-          start_weight: legacyData.startWeight,
-          updated_at: new Date().toISOString(),
-        })
+        const { error } = await supabase.from('plan_settings').upsert(
+          {
+            user_id: userId,
+            start_weight: legacyData.startWeight,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' },
+        )
+        if (error) console.error('[sync] 迁移起始体重失败:', error.message)
       }
       const weightRows = Object.entries(legacyData.weights).map(([date, weight]) => ({
         user_id: userId,
@@ -225,7 +246,10 @@ export function usePlanData() {
         weight,
       }))
       if (weightRows.length > 0) {
-        await supabase.from('weight_entries').upsert(weightRows)
+        const { error } = await supabase
+          .from('weight_entries')
+          .upsert(weightRows, { onConflict: 'user_id,date' })
+        if (error) console.error('[sync] 迁移体重记录失败:', error.message)
       }
       const checkinRows: { user_id: string; date: string; item_key: string; done: boolean }[] = []
       for (const [date, items] of Object.entries(legacyData.checkins)) {
@@ -236,7 +260,10 @@ export function usePlanData() {
         }
       }
       if (checkinRows.length > 0) {
-        await supabase.from('checkins').upsert(checkinRows)
+        const { error } = await supabase
+          .from('checkins')
+          .upsert(checkinRows, { onConflict: 'user_id,date,item_key' })
+        if (error) console.error('[sync] 迁移打卡记录失败:', error.message)
       }
       localStorage.removeItem(LEGACY_STORAGE_KEY)
       setDismissedLegacy(true)
