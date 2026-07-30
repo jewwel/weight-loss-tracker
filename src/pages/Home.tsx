@@ -108,11 +108,10 @@ export default function Home() {
             )}
 
             <TodayCheckin
-              today={today}
               todayKey={todayKey}
               checkins={data.checkins}
+              weights={data.weights}
               onToggle={toggleCheck}
-              hasWeightToday={data.weights[todayKey] != null}
             />
 
             <WeightSection

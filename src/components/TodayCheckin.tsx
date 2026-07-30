@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, Dumbbell, Footprints, Salad, Scale, PartyPopper } from 'lucide-react'
+import { Check, Dumbbell, Footprints, Salad, Scale, PartyPopper, Undo2 } from 'lucide-react'
 import type { CheckKey, DayCheckin } from '@/lib/plan'
-import { EMPTY_CHECKIN, randomPraise, todayExercise, weekdayCN } from '@/lib/plan'
+import { EMPTY_CHECKIN, PLAN_START, dateKey, randomPraise, todayExercise, weekdayCN } from '@/lib/plan'
 import { cn } from '@/lib/utils'
 
 interface Item {
@@ -54,20 +54,22 @@ function PetalCelebration() {
 }
 
 export default function TodayCheckin({
-  today,
   todayKey,
   checkins,
+  weights,
   onToggle,
-  hasWeightToday,
 }: {
-  today: Date
   todayKey: string
   checkins: Record<string, Partial<DayCheckin>>
+  weights: Record<string, number>
   onToggle: (key: string, item: CheckKey) => boolean
-  hasWeightToday: boolean
 }) {
-  const day: DayCheckin = { ...EMPTY_CHECKIN, ...(checkins[todayKey] ?? {}) }
-  const exercise = todayExercise(today)
+  const [selectedKey, setSelectedKey] = useState(todayKey)
+  const isToday = selectedKey === todayKey
+  const selectedDate = useMemo(() => new Date(`${selectedKey}T00:00:00`), [selectedKey])
+  const day: DayCheckin = { ...EMPTY_CHECKIN, ...(checkins[selectedKey] ?? {}) }
+  const exercise = todayExercise(selectedDate)
+  const hasWeight = weights[selectedKey] != null
 
   const items: Item[] = [
     {
@@ -85,7 +87,11 @@ export default function TodayCheckin({
     {
       key: 'weighed',
       title: '早晨称重',
-      desc: hasWeightToday ? '今天的数字已经记下啦' : '站上去看一眼就好，数字只是记录',
+      desc: hasWeight
+        ? isToday
+          ? '今天的数字已经记下啦'
+          : '这一天的数字已经记下啦'
+        : '站上去看一眼就好，数字只是记录',
       icon: 'scale',
     },
   ]
@@ -96,12 +102,12 @@ export default function TodayCheckin({
   const [praise, setPraise] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    if (allDone && !celebrated) setCelebrated(true)
-    if (!allDone) setCelebrated(false)
-  }, [allDone, celebrated])
+    if (allDone && isToday && !celebrated) setCelebrated(true)
+    if (!allDone || !isToday) setCelebrated(false)
+  }, [allDone, isToday, celebrated])
 
   const handleToggle = (item: Item) => {
-    const nowChecked = onToggle(todayKey, item.key)
+    const nowChecked = onToggle(selectedKey, item.key)
     if (nowChecked) {
       setPraise((prev) => ({ ...prev, [item.key]: randomPraise() }))
       window.setTimeout(() => {
@@ -131,14 +137,40 @@ export default function TodayCheckin({
       <AnimatePresence>{celebrated && <PetalCelebration key="petals" />}</AnimatePresence>
 
       <div className="mb-5">
-        <h2 className="font-serif-sc text-2xl font-bold text-[#5C544B]">今日打卡</h2>
+        <h2 className="font-serif-sc text-2xl font-bold text-[#5C544B]">
+          {isToday ? '今日打卡' : '补打卡'}
+        </h2>
         <p className="mt-1 text-sm text-[#9B9084]">
-          {weekdayCN(today)} · {exercise.title}日 · 已完成 {doneCount}/3
+          {Number(selectedKey.slice(5, 7))}月{Number(selectedKey.slice(8, 10))}日 {weekdayCN(selectedDate)} · {exercise.title}日 · 已完成 {doneCount}/3
         </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <input
+            type="date"
+            min={dateKey(PLAN_START)}
+            max={todayKey}
+            value={selectedKey}
+            onChange={(e) => {
+              if (e.target.value) setSelectedKey(e.target.value)
+            }}
+            className="rounded-2xl border border-[#EFE6DA] bg-white px-3 py-2 text-sm text-[#5C544B] outline-none focus:border-[#E8967A]"
+          />
+          {isToday ? (
+            <span className="text-xs text-[#B4ABA0]">忘了打卡？选个以前的日期补上就好</span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSelectedKey(todayKey)}
+              className="inline-flex items-center gap-1 text-xs text-[#C4A88A] hover:text-[#E8967A]"
+            >
+              <Undo2 className="h-3.5 w-3.5" />
+              回到今天
+            </button>
+          )}
+        </div>
       </div>
 
       <AnimatePresence>
-        {allDone && (
+        {allDone && isToday && (
           <motion.div
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
