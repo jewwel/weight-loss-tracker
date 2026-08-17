@@ -1,5 +1,13 @@
-import { useMemo } from 'react'
-import { CloudUpload, Download, HeartHandshake, LogIn, LogOut } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import {
+  BookOpen,
+  CloudUpload,
+  Download,
+  HeartHandshake,
+  LogIn,
+  LogOut,
+  Scale,
+} from 'lucide-react'
 import { usePlanData } from '@/hooks/usePlanData'
 import { dateKey } from '@/lib/plan'
 import { supabaseConfigured } from '@/lib/supabase'
@@ -7,10 +15,12 @@ import Hero from '@/components/Hero'
 import TodayCheckin from '@/components/TodayCheckin'
 import WeightSection from '@/components/WeightSection'
 import Footprint from '@/components/Footprint'
+import ReadingSection from '@/components/ReadingSection'
 
 export default function Home() {
   const today = useMemo(() => new Date(), [])
   const todayKey = dateKey(today)
+  const [tab, setTab] = useState<'weight' | 'reading'>('weight')
   const {
     data,
     setStartWeight,
@@ -32,6 +42,36 @@ export default function Home() {
   return (
     <div className="min-h-[100dvh] bg-[#0A0A0A] pb-16">
       <Hero today={today} />
+
+      {/* 功能切换 */}
+      <div className="mx-auto mt-2 flex max-w-3xl justify-center px-5">
+        <div className="inline-flex rounded-full border border-[#262626] bg-[#141414] p-1">
+          <button
+            type="button"
+            onClick={() => setTab('weight')}
+            className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm transition-colors ${
+              tab === 'weight'
+                ? 'bg-[#F5F5F5] font-medium text-[#0A0A0A]'
+                : 'text-[#A3A3A3] hover:text-[#F5F5F5]'
+            }`}
+          >
+            <Scale className="h-4 w-4" />
+            体重管理
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('reading')}
+            className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm transition-colors ${
+              tab === 'reading'
+                ? 'bg-[#F5F5F5] font-medium text-[#0A0A0A]'
+                : 'text-[#A3A3A3] hover:text-[#F5F5F5]'
+            }`}
+          >
+            <BookOpen className="h-4 w-4" />
+            读书计划
+          </button>
+        </div>
+      </div>
 
       {isLoading ? (
         <main className="mx-auto mt-10 max-w-3xl px-5 text-center">
@@ -67,7 +107,12 @@ export default function Home() {
           <main className="space-y-4">
             <div className="mx-auto flex max-w-3xl items-center justify-between px-5 pt-1">
               <p className="text-xs text-[#6E6E6E]">
-                你好，{(user?.user_metadata?.user_name as string | undefined) ?? (user?.user_metadata?.full_name as string | undefined) ?? user?.email ?? '朋友'} · 记录已云端同步
+                你好，
+                {(user?.user_metadata?.user_name as string | undefined) ??
+                  (user?.user_metadata?.full_name as string | undefined) ??
+                  user?.email ??
+                  '朋友'}{' '}
+                · 记录已云端同步
               </p>
               <button
                 type="button"
@@ -106,44 +151,54 @@ export default function Home() {
                 </div>
               </div>
             )}
-
-            <TodayCheckin
-              todayKey={todayKey}
-              checkins={data.checkins}
-              weights={data.weights}
-              onToggle={toggleCheck}
-            />
-
-            <WeightSection
-              today={today}
-              data={data}
-              setStartWeight={setStartWeight}
-              setWeight={setWeight}
-              removeWeight={removeWeight}
-            />
-
-            <Footprint today={today} data={data} />
           </main>
 
-          <footer className="mx-auto mt-8 max-w-3xl px-5">
-            <div className="flex flex-col items-center gap-4 rounded-3xl border border-[#262626] bg-[#141414] px-6 py-6 text-center shadow-softer">
-              <button
-                type="button"
-                onClick={exportJSON}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[#262626] bg-[#1C1C1C] px-5 py-2.5 text-sm text-[#A3A3A3] transition-colors hover:border-[#F5F5F5] hover:text-[#F5F5F5]"
-              >
-                <Download className="h-4 w-4" />
-                导出数据（JSON）
-              </button>
-              <p className="flex items-center gap-1.5 text-xs text-[#6E6E6E]">
-                <HeartHandshake className="h-3.5 w-3.5" />
-                数据只属于你，安安静静地同步在云端。
-              </p>
-            </div>
-            <p className="mt-6 text-center text-xs text-[#6E6E6E]">
-              轻盈计划 · 2026-07-28 → 2026-09-15 · 慢慢来，今天也很好
-            </p>
-          </footer>
+          {tab === 'reading' ? (
+            <main>
+              <ReadingSection today={today} userId={user?.id ?? ''} />
+            </main>
+          ) : (
+            <>
+              <main className="space-y-4">
+                <TodayCheckin
+                  todayKey={todayKey}
+                  checkins={data.checkins}
+                  weights={data.weights}
+                  onToggle={toggleCheck}
+                />
+
+                <WeightSection
+                  today={today}
+                  data={data}
+                  setStartWeight={setStartWeight}
+                  setWeight={setWeight}
+                  removeWeight={removeWeight}
+                />
+
+                <Footprint today={today} data={data} />
+              </main>
+
+              <footer className="mx-auto mt-8 max-w-3xl px-5">
+                <div className="flex flex-col items-center gap-4 rounded-3xl border border-[#262626] bg-[#141414] px-6 py-6 text-center shadow-softer">
+                  <button
+                    type="button"
+                    onClick={exportJSON}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-[#262626] bg-[#1C1C1C] px-5 py-2.5 text-sm text-[#A3A3A3] transition-colors hover:border-[#F5F5F5] hover:text-[#F5F5F5]"
+                  >
+                    <Download className="h-4 w-4" />
+                    导出数据（JSON）
+                  </button>
+                  <p className="flex items-center gap-1.5 text-xs text-[#6E6E6E]">
+                    <HeartHandshake className="h-3.5 w-3.5" />
+                    数据只属于你，安安静静地同步在云端。
+                  </p>
+                </div>
+                <p className="mt-6 text-center text-xs text-[#6E6E6E]">
+                  轻盈计划 · 2026-07-28 → 2026-09-15 · 慢慢来，今天也很好
+                </p>
+              </footer>
+            </>
+          )}
         </>
       )}
     </div>
