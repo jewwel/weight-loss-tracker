@@ -96,3 +96,67 @@ alter table reading_summaries enable row level security;
 
 create policy "own reading_summaries" on reading_summaries
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+
+-- 9. 项目管理：项目（每用户一个当前项目）
+create table if not exists projects (
+  user_id uuid primary key references auth.users on delete cascade,
+  name text not null,
+  goal text,
+  start_date text not null,
+  end_date text not null,
+  updated_at timestamptz not null default now()
+);
+
+-- 10. 项目待办事项（预估工时 + 当前进度 0-100）
+create table if not exists project_todos (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  title text not null,
+  estimate_hours double precision not null default 1,
+  progress integer not null default 0,
+  created_at timestamptz not null default now(),
+  completed_at text
+);
+
+-- 11. 项目整体进度每日快照（0-100，加权平均）
+create table if not exists project_progress_logs (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  date text not null,
+  progress integer not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, date)
+);
+
+-- 12. 任务完成总结（每完成一个待办可存一条）
+create table if not exists project_task_summaries (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  todo_id bigint,
+  title text not null,
+  estimate_hours double precision not null,
+  started_date text not null,
+  completed_date text not null,
+  reflection text,
+  stats jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+-- 13. 行级安全
+alter table projects enable row level security;
+alter table project_todos enable row level security;
+alter table project_progress_logs enable row level security;
+alter table project_task_summaries enable row level security;
+
+create policy "own projects" on projects
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own project_todos" on project_todos
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own project_progress_logs" on project_progress_logs
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own project_task_summaries" on project_task_summaries
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

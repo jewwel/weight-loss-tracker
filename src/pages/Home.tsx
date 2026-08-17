@@ -3,6 +3,7 @@ import {
   BookOpen,
   CloudUpload,
   Download,
+  FolderKanban,
   HeartHandshake,
   LogIn,
   LogOut,
@@ -16,11 +17,20 @@ import TodayCheckin from '@/components/TodayCheckin'
 import WeightSection from '@/components/WeightSection'
 import Footprint from '@/components/Footprint'
 import ReadingSection from '@/components/ReadingSection'
+import ProjectSection from '@/components/ProjectSection'
+
+type Tab = 'weight' | 'reading' | 'project'
+
+const TABS: Array<{ key: Tab; label: string; icon: typeof Scale }> = [
+  { key: 'weight', label: '体重管理', icon: Scale },
+  { key: 'reading', label: '读书计划', icon: BookOpen },
+  { key: 'project', label: '项目管理', icon: FolderKanban },
+]
 
 export default function Home() {
   const today = useMemo(() => new Date(), [])
   const todayKey = dateKey(today)
-  const [tab, setTab] = useState<'weight' | 'reading'>('weight')
+  const [tab, setTab] = useState<Tab>('weight')
   const {
     data,
     setStartWeight,
@@ -46,30 +56,21 @@ export default function Home() {
       {/* 功能切换 */}
       <div className="mx-auto mt-2 flex max-w-3xl justify-center px-5">
         <div className="inline-flex rounded-full border border-[#262626] bg-[#141414] p-1">
-          <button
-            type="button"
-            onClick={() => setTab('weight')}
-            className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm transition-colors ${
-              tab === 'weight'
-                ? 'bg-[#F5F5F5] font-medium text-[#0A0A0A]'
-                : 'text-[#A3A3A3] hover:text-[#F5F5F5]'
-            }`}
-          >
-            <Scale className="h-4 w-4" />
-            体重管理
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('reading')}
-            className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm transition-colors ${
-              tab === 'reading'
-                ? 'bg-[#F5F5F5] font-medium text-[#0A0A0A]'
-                : 'text-[#A3A3A3] hover:text-[#F5F5F5]'
-            }`}
-          >
-            <BookOpen className="h-4 w-4" />
-            读书计划
-          </button>
+          {TABS.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTab(key)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm transition-colors ${
+                tab === key
+                  ? 'bg-[#F5F5F5] font-medium text-[#0A0A0A]'
+                  : 'text-[#A3A3A3] hover:text-[#F5F5F5]'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -156,6 +157,10 @@ export default function Home() {
           {tab === 'reading' ? (
             <main>
               <ReadingSection today={today} userId={user?.id ?? ''} />
+            </main>
+          ) : tab === 'project' ? (
+            <main>
+              <ProjectSection today={today} userId={user?.id ?? ''} />
             </main>
           ) : (
             <>
