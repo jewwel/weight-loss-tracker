@@ -160,3 +160,67 @@ create policy "own project_progress_logs" on project_progress_logs
 
 create policy "own project_task_summaries" on project_task_summaries
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+
+-- 14. 英语视频学习：学习计划（每用户一个当前计划）
+create table if not exists video_plans (
+  user_id uuid primary key references auth.users on delete cascade,
+  name text not null,
+  goal text,
+  start_date text not null,
+  end_date text not null,
+  updated_at timestamptz not null default now()
+);
+
+-- 15. 视频学习待办（预估工时 + 当前进度 0-100）
+create table if not exists video_todos (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  title text not null,
+  estimate_hours double precision not null default 1,
+  progress integer not null default 0,
+  created_at timestamptz not null default now(),
+  completed_at text
+);
+
+-- 16. 视频学习整体进度每日快照（0-100，加权平均）
+create table if not exists video_progress_logs (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  date text not null,
+  progress integer not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, date)
+);
+
+-- 17. 视频学习任务完成总结（每完成一个待办可存一条）
+create table if not exists video_task_summaries (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  todo_id bigint,
+  title text not null,
+  estimate_hours double precision not null,
+  started_date text not null,
+  completed_date text not null,
+  reflection text,
+  stats jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+-- 18. 行级安全
+alter table video_plans enable row level security;
+alter table video_todos enable row level security;
+alter table video_progress_logs enable row level security;
+alter table video_task_summaries enable row level security;
+
+create policy "own video_plans" on video_plans
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own video_todos" on video_todos
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own video_progress_logs" on video_progress_logs
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "own video_task_summaries" on video_task_summaries
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

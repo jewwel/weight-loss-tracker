@@ -7,6 +7,7 @@ import {
   HeartHandshake,
   LogIn,
   LogOut,
+  MonitorPlay,
   Scale,
 } from 'lucide-react'
 import { usePlanData } from '@/hooks/usePlanData'
@@ -18,13 +19,15 @@ import WeightSection from '@/components/WeightSection'
 import Footprint from '@/components/Footprint'
 import ReadingSection from '@/components/ReadingSection'
 import ProjectSection from '@/components/ProjectSection'
+import VideoSection from '@/components/VideoSection'
 
-type Tab = 'weight' | 'reading' | 'project'
+type Tab = 'weight' | 'reading' | 'project' | 'video'
 
 const TABS: Array<{ key: Tab; label: string; icon: typeof Scale }> = [
   { key: 'weight', label: '体重管理', icon: Scale },
   { key: 'reading', label: '读书计划', icon: BookOpen },
   { key: 'project', label: '项目管理', icon: FolderKanban },
+  { key: 'video', label: '英语视频', icon: MonitorPlay },
 ]
 
 export default function Home() {
@@ -161,6 +164,10 @@ export default function Home() {
           ) : tab === 'project' ? (
             <main>
               <ProjectSection today={today} userId={user?.id ?? ''} />
+            </main>
+          ) : tab === 'video' ? (
+            <main>
+              <VideoSection today={today} userId={user?.id ?? ''} />
             </main>
           ) : (
             <>
