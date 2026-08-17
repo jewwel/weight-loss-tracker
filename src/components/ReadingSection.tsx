@@ -18,18 +18,22 @@ import {
   CalendarHeart,
   ChevronDown,
   CircleHelp,
+  Download,
+  GraduationCap,
   PencilLine,
   Plus,
   Target,
   X,
 } from 'lucide-react'
 import { dateKey } from '@/lib/plan'
-import type { ReadingPlan } from '@/lib/reading'
+import type { ReadingPlan, ReadingSummary } from '@/lib/reading'
 import {
   avgPagesPerDay,
+  buildSummaryStats,
   cleanQuestions,
   parseLocalDate,
   planDateKeys,
+  summaryToMarkdown,
   targetPageAt,
   totalDays,
   validatePlan,
@@ -103,8 +107,16 @@ export default function ReadingSection({
   userId: string
 }) {
   const todayKey = dateKey(today)
-  const { plan, entries, loading, savePlan, setPage, removePage } =
-    useReadingData(userId)
+  const {
+    plan,
+    entries,
+    summaries,
+    loading,
+    savePlan,
+    setPage,
+    removePage,
+    saveSummary,
+  } = useReadingData(userId)
 
   // 表单状态
   const [editing, setEditing] = useState(false)
@@ -122,6 +134,11 @@ export default function ReadingSection({
   const [historyDate, setHistoryDate] = useState(todayKey)
   const [historyInput, setHistoryInput] = useState('')
   const [savedFlash, setSavedFlash] = useState<string | null>(null)
+
+  // 完成总结状态
+  const [summaryOpen, setSummaryOpen] = useState(false)
+  const [answers, setAnswers] = useState<string[]>([])
+  const [reflection, setReflection] = useState('')
 
   const flash = (msg: string) => {
     setSavedFlash(msg)
@@ -213,6 +230,57 @@ export default function ReadingSection({
     plan && current
       ? Math.min(100, Math.round((current.value / plan.totalPages) * 100))
       : null
+
+  // 完成状态与总结
+  const finished =
+    plan != null && current != null && current.value >= plan.totalPages
+  const existingSummary = plan
+    ? summaries.find(
+        s => s.bookName === plan.bookName && s.startDate === plan.startDate
+      )
+    : undefined
+  const pendingSummary = useMemo(() => {
+    if (!plan || !finished) return null
+    return buildSummaryStats(plan, entries, todayKey)
+  }, [plan, finished, entries, todayKey])
+
+  const openSummaryForm = () => {
+    if (!plan) return
+    setAnswers(plan.questions.map(() => ''))
+    setReflection('')
+    setSummaryOpen(true)
+  }
+
+  const submitSummary = () => {
+    if (!plan || !pendingSummary) return
+    const summary: ReadingSummary = {
+      bookName: plan.bookName,
+      purpose: plan.purpose,
+      questions: plan.questions,
+      answers: answers.map(a => a.trim()),
+      reflection: reflection.trim(),
+      startDate: plan.startDate,
+      endDate: plan.endDate,
+      finishedDate: pendingSummary.finishedDate,
+      totalPages: plan.totalPages,
+      stats: pendingSummary.stats,
+    }
+    saveSummary(summary)
+    setSummaryOpen(false)
+    flash('总结已保存到云端，可以随时导出')
+  }
+
+  const downloadSummary = (s: ReadingSummary) => {
+    const blob = new Blob([summaryToMarkdown(s)], {
+      type: 'text/markdown;charset=utf-8',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `《${s.bookName}》读书总结-${s.finishedDate}.md`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const showForm = !loading && (plan == null || editing)
 
@@ -706,6 +774,137 @@ export default function ReadingSection({
               hint={`每天约 ${avgPagesPerDay(plan)} 页 · ${plan.startDate} → ${plan.endDate}`}
             />
           </div>
+
+          {/* 完成总结 */}
+          {finished && pendingSummary && (
+            <div className="shadow-softer mt-4 rounded-3xl border border-[#262626] bg-[#141414] px-6 py-5">
+              <div className="flex items-center gap-3">
+                <GraduationCap className="h-6 w-6 shrink-0 text-[#F5F5F5]" />
+                <div>
+                  <p className="font-serif-sc text-lg font-semibold text-[#F5F5F5]">
+                    恭喜读完《{plan.bookName}》
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#6E6E6E]">
+                    计划 {pendingSummary.stats.plannedDays} 天 · 实际{' '}
+                    {pendingSummary.stats.actualDays} 天 · 实际每天约{' '}
+                    {pendingSummary.stats.actualAvg} 页 · 记录了{' '}
+                    {pendingSummary.stats.recordedDays} 天
+                  </p>
+                </div>
+              </div>
+
+              {existingSummary && !summaryOpen ? (
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-[#1C1C1C] px-3 py-1 text-xs text-[#A3A3A3]">
+                    总结已保存到云端 · 完成于 {existingSummary.finishedDate}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => downloadSummary(existingSummary)}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-5 py-2.5 text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#E0E0E0]"
+                  >
+                    <Download className="h-4 w-4" />
+                    导出总结（Markdown）
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAnswers(
+                        plan.questions.map(
+                          (_, i) => existingSummary.answers[i] ?? ''
+                        )
+                      )
+                      setReflection(existingSummary.reflection)
+                      setSummaryOpen(true)
+                    }}
+                    className="text-xs text-[#6E6E6E] underline underline-offset-2 hover:text-[#F5F5F5]"
+                  >
+                    重新生成
+                  </button>
+                </div>
+              ) : !summaryOpen ? (
+                <button
+                  type="button"
+                  onClick={openSummaryForm}
+                  className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-[#F5F5F5] px-5 py-2.5 text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#E0E0E0]"
+                >
+                  <GraduationCap className="h-4 w-4" />
+                  生成这本书的总结
+                </button>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  {plan.questions.length > 0 && (
+                    <div>
+                      <label className="mb-1.5 block text-xs text-[#A3A3A3]">
+                        回顾当初的问题，现在能回答了吗？
+                      </label>
+                      <div className="space-y-3">
+                        {plan.questions.map((q, i) => (
+                          <div key={i}>
+                            <p className="mb-1 text-sm text-[#F5F5F5]">
+                              {i + 1}. {q}
+                            </p>
+                            <textarea
+                              value={answers[i] ?? ''}
+                              onChange={e =>
+                                setAnswers(prev =>
+                                  prev.map((old, j) =>
+                                    j === i ? e.target.value : old
+                                  )
+                                )
+                              }
+                              placeholder="写下你的答案……"
+                              rows={2}
+                              className={`${inputCls} w-full resize-none`}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="mb-1.5 block text-xs text-[#A3A3A3]">
+                      这本书的总结
+                    </label>
+                    <textarea
+                      value={reflection}
+                      onChange={e => setReflection(e.target.value)}
+                      placeholder="这本书带给你什么？哪些想法值得留下来？"
+                      rows={4}
+                      className={`${inputCls} w-full resize-none`}
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={submitSummary}
+                      className="rounded-2xl bg-[#F5F5F5] px-5 py-2.5 text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#E0E0E0]"
+                    >
+                      保存总结到云端
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSummaryOpen(false)}
+                      className="text-sm text-[#A3A3A3] underline underline-offset-2"
+                    >
+                      取消
+                    </button>
+                    {savedFlash && (
+                      <motion.span
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-xs text-[#A3A3A3]"
+                      >
+                        {savedFlash}
+                      </motion.span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </>
       ) : null}
     </motion.section>

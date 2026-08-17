@@ -74,3 +74,25 @@ create policy "own reading_plans" on reading_plans
 
 create policy "own reading_entries" on reading_entries
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- 8. 读书总结（每完成一本书存一条）
+create table if not exists reading_summaries (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  book_name text not null,
+  purpose text,
+  questions jsonb not null default '[]'::jsonb,
+  answers jsonb not null default '[]'::jsonb,
+  reflection text,
+  start_date text not null,
+  end_date text not null,
+  finished_date text not null,
+  total_pages integer not null,
+  stats jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+alter table reading_summaries enable row level security;
+
+create policy "own reading_summaries" on reading_summaries
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
