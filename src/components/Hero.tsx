@@ -22,12 +22,12 @@ const FloatingLeaf = memo(function FloatingLeaf({
       <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
         <path
           d="M36 8C50 18 58 32 54 48C50 62 38 66 36 66C34 66 22 62 18 48C14 32 22 18 36 8Z"
-          fill="#F6CFC7"
+          fill="#2A2A2A"
           opacity="0.55"
         />
         <path
           d="M36 14C44 22 49 32 46 44"
-          stroke="#E8967A"
+          stroke="#4A4A4A"
           strokeWidth="1.5"
           strokeLinecap="round"
           opacity="0.5"
@@ -59,12 +59,12 @@ const FloatingFlower = memo(function FloatingFlower({
             cy="26"
             rx="10"
             ry="18"
-            fill="#F5D9BC"
+            fill="#2A2A2A"
             opacity="0.5"
             transform={`rotate(${deg} 44 44)`}
           />
         ))}
-        <circle cx="44" cy="44" r="9" fill="#EFC49F" opacity="0.7" />
+        <circle cx="44" cy="44" r="9" fill="#3A3A3A" opacity="0.7" />
       </svg>
     </motion.div>
   )
@@ -86,14 +86,14 @@ export default function Hero({ today }: { today: Date }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#F0F4EC] px-4 py-1.5 text-sm text-[#7C9473]">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#1C1C1C] px-4 py-1.5 text-sm text-[#A3A3A3]">
             <Sprout className="h-4 w-4" />
             温柔地，走向更好的自己
           </div>
-          <h1 className="font-serif-sc text-4xl font-bold tracking-wide text-[#5C544B] sm:text-5xl">
+          <h1 className="font-serif-sc text-4xl font-bold tracking-wide text-[#F5F5F5] sm:text-5xl">
             轻盈计划
           </h1>
-          <p className="mt-3 text-sm text-[#9B9084]">
+          <p className="mt-3 text-sm text-[#A3A3A3]">
             今天是 {format(today, 'yyyy年M月d日')} · {weekdayCN(today)}
           </p>
         </motion.div>
@@ -105,17 +105,17 @@ export default function Hero({ today }: { today: Date }) {
           className="mt-8"
         >
           {ended ? (
-            <p className="font-serif-sc text-2xl font-semibold text-[#5C544B] sm:text-3xl">
+            <p className="font-serif-sc text-2xl font-semibold text-[#F5F5F5] sm:text-3xl">
               计划日已到，回头看看，
               <br className="sm:hidden" />
               你已经走了很远。
             </p>
           ) : (
-            <p className="font-serif-sc text-[#5C544B]">
+            <p className="font-serif-sc text-[#F5F5F5]">
               <span className="text-xl sm:text-2xl">
                 距离 {format(PLAN_END, 'M月d日')} 还有
               </span>
-              <span className="mx-2 align-baseline text-6xl font-black text-[#E8967A] sm:text-7xl">
+              <span className="mx-2 align-baseline text-6xl font-black text-[#F5F5F5] sm:text-7xl">
                 {left}
               </span>
               <span className="text-xl sm:text-2xl">天</span>
@@ -128,13 +128,13 @@ export default function Hero({ today }: { today: Date }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="shadow-soft mx-auto mt-10 max-w-xl rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-7 py-6 text-left"
+          className="shadow-soft mx-auto mt-10 max-w-xl rounded-3xl border border-[#262626] bg-[#141414] px-7 py-6 text-left"
         >
           <div className="flex items-start gap-3">
-            <Quote className="mt-1 h-6 w-6 shrink-0 rotate-180 text-[#F2B8A0]" />
+            <Quote className="mt-1 h-6 w-6 shrink-0 rotate-180 text-[#4A4A4A]" />
             <div>
-              <p className="text-xs tracking-widest text-[#9B9084]">今日想说给你听</p>
-              <p className="font-serif-sc mt-2 text-2xl font-semibold leading-relaxed text-[#5C544B] sm:text-[1.7rem]">
+              <p className="text-xs tracking-widest text-[#A3A3A3]">今日想说给你听</p>
+              <p className="font-serif-sc mt-2 text-2xl font-semibold leading-relaxed text-[#F5F5F5] sm:text-[1.7rem]">
                 {slogan}
               </p>
             </div>

@@ -14,10 +14,10 @@ import {
 import type { DayCheckin } from '@/lib/plan'
 
 const LEVEL_COLORS = [
-  '#F3EFE8', // 0/3
-  '#F6DFC9', // 1/3
-  '#EFC49F', // 2/3
-  '#8FA383', // 3/3
+  '#1C1C1C', // 0/3
+  '#3A3A3A', // 1/3
+  '#6E6E6E', // 2/3
+  '#F5F5F5', // 3/3
 ]
 
 interface Cell {
@@ -103,48 +103,48 @@ export default function Footprint({
       className="mx-auto max-w-3xl px-5 py-6"
     >
       <div className="mb-5">
-        <h2 className="font-serif-sc text-2xl font-bold text-[#5C544B]">坚持足迹</h2>
-        <p className="mt-1 text-sm text-[#9B9084]">
+        <h2 className="font-serif-sc text-2xl font-bold text-[#F5F5F5]">坚持足迹</h2>
+        <p className="mt-1 text-sm text-[#A3A3A3]">
           留下的每一步，都是足迹。
         </p>
       </div>
 
       {/* 统计行 */}
       <div className="mb-4 grid grid-cols-3 gap-3">
-        <div className="shadow-softer rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-4 text-center">
-          <Flame className="mx-auto mb-1 h-5 w-5 text-[#E8967A]" />
-          <p className="font-serif-sc text-2xl font-bold text-[#5C544B]">{streak}</p>
-          <p className="text-xs text-[#9B9084]">连续全完成天数</p>
+        <div className="shadow-softer rounded-3xl border border-[#262626] bg-[#141414] px-4 py-4 text-center">
+          <Flame className="mx-auto mb-1 h-5 w-5 text-[#F5F5F5]" />
+          <p className="font-serif-sc text-2xl font-bold text-[#F5F5F5]">{streak}</p>
+          <p className="text-xs text-[#A3A3A3]">连续全完成天数</p>
         </div>
-        <div className="shadow-softer rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-4 text-center">
-          <Footprints className="mx-auto mb-1 h-5 w-5 text-[#8FA383]" />
-          <p className="font-serif-sc text-2xl font-bold text-[#5C544B]">{totalChecks}</p>
-          <p className="text-xs text-[#9B9084]">总完成次数</p>
+        <div className="shadow-softer rounded-3xl border border-[#262626] bg-[#141414] px-4 py-4 text-center">
+          <Footprints className="mx-auto mb-1 h-5 w-5 text-[#A3A3A3]" />
+          <p className="font-serif-sc text-2xl font-bold text-[#F5F5F5]">{totalChecks}</p>
+          <p className="text-xs text-[#A3A3A3]">总完成次数</p>
         </div>
-        <div className="shadow-softer rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-4 text-center">
-          <Flower2 className="mx-auto mb-1 h-5 w-5 text-[#F2B8A0]" />
-          <p className="font-serif-sc text-2xl font-bold text-[#5C544B]">{fullDays}</p>
-          <p className="text-xs text-[#9B9084]">满分的日子</p>
+        <div className="shadow-softer rounded-3xl border border-[#262626] bg-[#141414] px-4 py-4 text-center">
+          <Flower2 className="mx-auto mb-1 h-5 w-5 text-[#A3A3A3]" />
+          <p className="font-serif-sc text-2xl font-bold text-[#F5F5F5]">{fullDays}</p>
+          <p className="text-xs text-[#A3A3A3]">满分的日子</p>
         </div>
       </div>
 
       {/* 热力网格 */}
-      <div className="shadow-soft rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-5 sm:px-6">
-        <div className="mb-3 flex items-center justify-between text-xs text-[#B4ABA0]">
+      <div className="shadow-soft rounded-3xl border border-[#262626] bg-[#141414] px-4 py-5 sm:px-6">
+        <div className="mb-3 flex items-center justify-between text-xs text-[#6E6E6E]">
           <span>07-28 → 09-15 · 已陪伴 {Math.min(elapsedDays, 50)} 天</span>
           <span className="flex items-center gap-1.5">
             少
             {LEVEL_COLORS.map((c) => (
               <span
                 key={c}
-                className="inline-block h-3 w-3 rounded-md border border-[#EFE6DA]"
+                className="inline-block h-3 w-3 rounded-md border border-[#262626]"
                 style={{ backgroundColor: c }}
               />
             ))}
             全完成
           </span>
         </div>
-        <div className="mb-1 grid grid-cols-7 gap-1.5 text-center text-[10px] text-[#C9BFB2]">
+        <div className="mb-1 grid grid-cols-7 gap-1.5 text-center text-[10px] text-[#6E6E6E]">
           {['日', '一', '二', '三', '四', '五', '六'].map((w) => (
             <span key={w}>{w}</span>
           ))}
@@ -162,13 +162,13 @@ export default function Footprint({
                     className="relative flex aspect-square items-center justify-center rounded-md border transition-transform hover:scale-110"
                     style={{
                       backgroundColor:
-                        cell.level == null ? '#EFEAE2' : LEVEL_COLORS[cell.level],
+                        cell.level == null ? '#141414' : LEVEL_COLORS[cell.level],
                       borderColor:
                         cell.key === todayKey
-                          ? '#E8967A'
+                          ? '#F5F5F5'
                           : cell.level == null
-                            ? '#E9E3D9'
-                            : '#EFE6DA',
+                            ? '#262626'
+                            : '#262626',
                       borderWidth: cell.key === todayKey ? 2 : 1,
                     }}
                   >
@@ -177,10 +177,10 @@ export default function Footprint({
                       style={{
                         color:
                           cell.level === 3
-                            ? '#FFFFFF'
+                            ? '#0A0A0A'
                             : cell.level == null
-                              ? '#C9C2B6'
-                              : '#9B9084',
+                              ? '#4A4A4A'
+                              : '#A3A3A3',
                       }}
                     >
                       {cell.day}
@@ -194,9 +194,9 @@ export default function Footprint({
       </div>
 
       {/* 每周小结 */}
-      <div className="mt-4 rounded-3xl border border-[#F0DDC9] bg-[#FDF6EC] px-6 py-4">
-        <p className="text-xs tracking-widest text-[#C4A88A]">本周小结</p>
-        <p className="font-serif-sc mt-1.5 text-base font-medium text-[#5C544B]">
+      <div className="mt-4 rounded-3xl border border-[#262626] bg-[#141414] px-6 py-4">
+        <p className="text-xs tracking-widest text-[#6E6E6E]">本周小结</p>
+        <p className="font-serif-sc mt-1.5 text-base font-medium text-[#F5F5F5]">
           {weeklyNote(today)}
         </p>
       </div>

@@ -22,7 +22,7 @@ const ICONS = {
 /** 全完成庆祝：柔和花瓣飘落（一次性） */
 function PetalCelebration() {
   const petals = Array.from({ length: 10 }, (_, i) => i)
-  const colors = ['#F6CFC7', '#F5D9BC', '#CFE0C6', '#F2B8A0']
+  const colors = ['#2A2A2A', '#3A3A3A', '#4A4A4A', '#5A5A5A']
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 h-56 overflow-hidden">
       {petals.map((i) => {
@@ -137,10 +137,10 @@ export default function TodayCheckin({
       <AnimatePresence>{celebrated && <PetalCelebration key="petals" />}</AnimatePresence>
 
       <div className="mb-5">
-        <h2 className="font-serif-sc text-2xl font-bold text-[#5C544B]">
+        <h2 className="font-serif-sc text-2xl font-bold text-[#F5F5F5]">
           {isToday ? '今日打卡' : '补打卡'}
         </h2>
-        <p className="mt-1 text-sm text-[#9B9084]">
+        <p className="mt-1 text-sm text-[#A3A3A3]">
           {Number(selectedKey.slice(5, 7))}月{Number(selectedKey.slice(8, 10))}日 {weekdayCN(selectedDate)} · {exercise.title}日 · 已完成 {doneCount}/3
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -152,15 +152,15 @@ export default function TodayCheckin({
             onChange={(e) => {
               if (e.target.value) setSelectedKey(e.target.value)
             }}
-            className="rounded-2xl border border-[#EFE6DA] bg-white px-3 py-2 text-sm text-[#5C544B] outline-none focus:border-[#E8967A]"
+            className="rounded-2xl border border-[#262626] bg-[#141414] px-3 py-2 text-sm text-[#F5F5F5] outline-none focus:border-[#F5F5F5]"
           />
           {isToday ? (
-            <span className="text-xs text-[#B4ABA0]">忘了打卡？选个以前的日期补上就好</span>
+            <span className="text-xs text-[#6E6E6E]">忘了打卡？选个以前的日期补上就好</span>
           ) : (
             <button
               type="button"
               onClick={() => setSelectedKey(todayKey)}
-              className="inline-flex items-center gap-1 text-xs text-[#C4A88A] hover:text-[#E8967A]"
+              className="inline-flex items-center gap-1 text-xs text-[#A3A3A3] hover:text-[#F5F5F5]"
             >
               <Undo2 className="h-3.5 w-3.5" />
               回到今天
@@ -175,7 +175,7 @@ export default function TodayCheckin({
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8 }}
-            className="mb-4 flex items-center gap-3 rounded-2xl border border-[#D8E3D1] bg-[#F0F4EC] px-5 py-4 text-[#7C9473]"
+            className="mb-4 flex items-center gap-3 rounded-2xl border border-[#262626] bg-[#1C1C1C] px-5 py-4 text-[#A3A3A3]"
           >
             <PartyPopper className="h-5 w-5 shrink-0" />
             <p className="text-sm">
@@ -198,15 +198,15 @@ export default function TodayCheckin({
               className={cn(
                 'shadow-softer relative flex flex-col rounded-3xl border px-5 py-5 text-left transition-colors duration-300',
                 checked
-                  ? 'border-[#D8E3D1] bg-gradient-to-br from-[#F0F4EC] to-[#E4EDDE]'
-                  : 'border-[#EFE6DA] bg-[#FFFDF9] hover:border-[#E4D8C8]',
+                  ? 'border-[#3A3A3A] bg-[#1C1C1C]'
+                  : 'border-[#262626] bg-[#141414] hover:border-[#3A3A3A]',
               )}
             >
               <div className="flex w-full items-start justify-between">
                 <span
                   className={cn(
                     'flex h-11 w-11 items-center justify-center rounded-2xl transition-colors duration-300',
-                    checked ? 'bg-[#8FA383] text-white' : 'bg-[#F6EFE6] text-[#C4A88A]',
+                    checked ? 'bg-[#F5F5F5] text-[#0A0A0A]' : 'bg-[#1C1C1C] text-[#6E6E6E]',
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -214,7 +214,7 @@ export default function TodayCheckin({
                 <span
                   className={cn(
                     'flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors duration-300',
-                    checked ? 'border-[#8FA383] bg-[#8FA383]' : 'border-[#E4D8C8] bg-white',
+                    checked ? 'border-[#F5F5F5] bg-[#F5F5F5]' : 'border-[#3A3A3A] bg-[#141414]',
                   )}
                 >
                   <AnimatePresence>
@@ -225,7 +225,7 @@ export default function TodayCheckin({
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                       >
-                        <Check className="h-4 w-4 text-white" strokeWidth={3} />
+                        <Check className="h-4 w-4 text-[#0A0A0A]" strokeWidth={3} />
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -234,19 +234,19 @@ export default function TodayCheckin({
               <p
                 className={cn(
                   'mt-3 font-medium transition-colors duration-300',
-                  checked ? 'text-[#5E7052]' : 'text-[#5C544B]',
+                  checked ? 'text-[#F5F5F5]' : 'text-[#A3A3A3]',
                 )}
               >
                 {item.title}
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-[#9B9084]">{item.desc}</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#A3A3A3]">{item.desc}</p>
               <AnimatePresence>
                 {praise[item.key] && (
                   <motion.p
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="mt-2 text-xs font-medium text-[#E8967A]"
+                    className="mt-2 text-xs font-medium text-[#F5F5F5]"
                   >
                     {praise[item.key]}
                   </motion.p>

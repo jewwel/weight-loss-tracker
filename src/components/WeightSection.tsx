@@ -36,13 +36,13 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
   const p = payload[0].payload
   if (p.weight == null && p.target == null) return null
   return (
-    <div className="rounded-2xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-2.5 shadow-soft">
-      <p className="text-xs text-[#9B9084]">{p.key}</p>
+    <div className="rounded-2xl border border-[#262626] bg-[#141414] px-4 py-2.5 shadow-soft">
+      <p className="text-xs text-[#A3A3A3]">{p.key}</p>
       {p.weight != null && (
-        <p className="font-serif-sc text-lg font-semibold text-[#5C544B]">{p.weight.toFixed(1)} kg</p>
+        <p className="font-serif-sc text-lg font-semibold text-[#F5F5F5]">{p.weight.toFixed(1)} kg</p>
       )}
       {p.target != null && (
-        <p className="text-xs text-[#8FA383]">今日目标 {p.target.toFixed(1)} kg</p>
+        <p className="text-xs text-[#A3A3A3]">今日目标 {p.target.toFixed(1)} kg</p>
       )}
     </div>
   )
@@ -60,13 +60,13 @@ function StatCard({
   hint?: string
 }) {
   return (
-    <div className="shadow-softer rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-5 py-4">
-      <div className="flex items-center gap-2 text-[#9B9084]">
+    <div className="shadow-softer rounded-3xl border border-[#262626] bg-[#141414] px-5 py-4">
+      <div className="flex items-center gap-2 text-[#A3A3A3]">
         {icon}
         <span className="text-xs">{label}</span>
       </div>
-      <p className="font-serif-sc mt-1.5 text-xl font-bold text-[#5C544B]">{value}</p>
-      {hint && <p className="mt-1 text-xs leading-relaxed text-[#B4ABA0]">{hint}</p>}
+      <p className="font-serif-sc mt-1.5 text-xl font-bold text-[#F5F5F5]">{value}</p>
+      {hint && <p className="mt-1 text-xs leading-relaxed text-[#6E6E6E]">{hint}</p>}
     </div>
   )
 }
@@ -164,19 +164,19 @@ export default function WeightSection({
       className="mx-auto max-w-3xl px-5 py-6"
     >
       <div className="mb-5">
-        <h2 className="font-serif-sc text-2xl font-bold text-[#5C544B]">体重记录</h2>
-        <p className="mt-1 text-sm text-[#9B9084]">
+        <h2 className="font-serif-sc text-2xl font-bold text-[#F5F5F5]">体重记录</h2>
+        <p className="mt-1 text-sm text-[#A3A3A3]">
           数字只是参考，状态才是答案。
         </p>
       </div>
 
       {/* 起始体重引导 / 展示 */}
       {startWeight == null || editingStart ? (
-        <div className="shadow-softer mb-4 rounded-3xl border border-[#F0DDC9] bg-[#FDF6EC] px-6 py-5">
-          <p className="font-serif-sc text-lg font-semibold text-[#5C544B]">
+        <div className="shadow-softer mb-4 rounded-3xl border border-[#262626] bg-[#141414] px-6 py-5">
+          <p className="font-serif-sc text-lg font-semibold text-[#F5F5F5]">
             先告诉我你的起始体重吧
           </p>
-          <p className="mt-1 text-xs text-[#9B9084]">
+          <p className="mt-1 text-xs text-[#A3A3A3]">
             它只是一切的起点，之后每一个数字都值得被温柔记录。
           </p>
           <div className="mt-3 flex items-center gap-3">
@@ -188,9 +188,9 @@ export default function WeightSection({
               value={startInput}
               onChange={(e) => setStartInput(e.target.value)}
               placeholder="例如 72.5"
-              className="w-36 rounded-2xl border border-[#EFE6DA] bg-white px-4 py-2.5 text-lg text-[#5C544B] outline-none focus:border-[#E8967A]"
+              className="w-36 rounded-2xl border border-[#262626] bg-[#141414] px-4 py-2.5 text-lg text-[#F5F5F5] outline-none focus:border-[#F5F5F5]"
             />
-            <span className="text-sm text-[#9B9084]">kg</span>
+            <span className="text-sm text-[#A3A3A3]">kg</span>
             <button
               type="button"
               onClick={() => {
@@ -201,7 +201,7 @@ export default function WeightSection({
                 setStartInput('')
                 flash('起始体重已记下，谢谢你愿意开始')
               }}
-              className="rounded-2xl bg-[#8FA383] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#7C9473]"
+              className="rounded-2xl bg-[#F5F5F5] px-5 py-2.5 text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#E0E0E0]"
             >
               保存
             </button>
@@ -209,7 +209,7 @@ export default function WeightSection({
               <button
                 type="button"
                 onClick={() => setEditingStart(false)}
-                className="text-sm text-[#9B9084] underline underline-offset-2"
+                className="text-sm text-[#A3A3A3] underline underline-offset-2"
               >
                 取消
               </button>
@@ -217,9 +217,9 @@ export default function WeightSection({
           </div>
         </div>
       ) : (
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#EFE6DA] bg-[#FFFDF9] px-5 py-3 text-sm">
-          <span className="text-[#9B9084]">
-            起始体重 <span className="font-serif-sc font-semibold text-[#5C544B]">{startWeight.toFixed(1)} kg</span>
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#262626] bg-[#141414] px-5 py-3 text-sm">
+          <span className="text-[#A3A3A3]">
+            起始体重 <span className="font-serif-sc font-semibold text-[#F5F5F5]">{startWeight.toFixed(1)} kg</span>
           </span>
           <button
             type="button"
@@ -227,7 +227,7 @@ export default function WeightSection({
               setStartInput(startWeight.toFixed(1))
               setEditingStart(true)
             }}
-            className="inline-flex items-center gap-1 text-[#C4A88A] hover:text-[#E8967A]"
+            className="inline-flex items-center gap-1 text-[#A3A3A3] hover:text-[#F5F5F5]"
           >
             <PencilLine className="h-3.5 w-3.5" /> 修改
           </button>
@@ -235,12 +235,12 @@ export default function WeightSection({
       )}
 
       {/* 今日称重 */}
-      <div className="shadow-softer mb-4 rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-6 py-5">
+      <div className="shadow-softer mb-4 rounded-3xl border border-[#262626] bg-[#141414] px-6 py-5">
         <div className="flex flex-wrap items-center gap-3">
-          <Scale className="h-5 w-5 text-[#E8967A]" />
-          <p className="text-sm font-medium text-[#5C544B]">今日称重</p>
+          <Scale className="h-5 w-5 text-[#F5F5F5]" />
+          <p className="text-sm font-medium text-[#F5F5F5]">今日称重</p>
           {weights[todayKey] != null && (
-            <span className="rounded-full bg-[#F0F4EC] px-3 py-1 text-xs text-[#7C9473]">
+            <span className="rounded-full bg-[#1C1C1C] px-3 py-1 text-xs text-[#A3A3A3]">
               已记录 {weights[todayKey].toFixed(1)} kg
             </span>
           )}
@@ -254,9 +254,9 @@ export default function WeightSection({
             value={todayInput}
             onChange={(e) => setTodayInput(e.target.value)}
             placeholder={weights[todayKey] != null ? weights[todayKey].toFixed(1) : '今天早上的数字'}
-            className="w-40 rounded-2xl border border-[#EFE6DA] bg-white px-4 py-2.5 text-lg text-[#5C544B] outline-none focus:border-[#E8967A]"
+            className="w-40 rounded-2xl border border-[#262626] bg-[#141414] px-4 py-2.5 text-lg text-[#F5F5F5] outline-none focus:border-[#F5F5F5]"
           />
-          <span className="text-sm text-[#9B9084]">kg</span>
+          <span className="text-sm text-[#A3A3A3]">kg</span>
           <button
             type="button"
             onClick={() => {
@@ -266,7 +266,7 @@ export default function WeightSection({
               setTodayInput('')
               flash('今天的数字已温柔记下')
             }}
-            className="rounded-2xl bg-[#E8967A] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#DE8465]"
+            className="rounded-2xl bg-[#F5F5F5] px-5 py-2.5 text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#E0E0E0]"
           >
             记录今日体重
           </button>
@@ -274,7 +274,7 @@ export default function WeightSection({
             <motion.span
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-xs text-[#8FA383]"
+              className="text-xs text-[#A3A3A3]"
             >
               {savedFlash}
             </motion.span>
@@ -285,7 +285,7 @@ export default function WeightSection({
         <button
           type="button"
           onClick={() => setHistoryOpen((v) => !v)}
-          className="mt-4 inline-flex items-center gap-1 text-xs text-[#B4ABA0] hover:text-[#E8967A]"
+          className="mt-4 inline-flex items-center gap-1 text-xs text-[#6E6E6E] hover:text-[#F5F5F5]"
         >
           <ChevronDown
             className={`h-3.5 w-3.5 transition-transform ${historyOpen ? 'rotate-180' : ''}`}
@@ -293,7 +293,7 @@ export default function WeightSection({
           查看 / 补录历史日期
         </button>
         {historyOpen && (
-          <div className="mt-3 rounded-2xl bg-[#FBF7EF] px-4 py-4">
+          <div className="mt-3 rounded-2xl bg-[#1C1C1C] px-4 py-4">
             <div className="flex flex-wrap items-center gap-3">
               <input
                 type="date"
@@ -305,7 +305,7 @@ export default function WeightSection({
                   const w = weights[e.target.value]
                   setHistoryInput(w != null ? w.toFixed(1) : '')
                 }}
-                className="rounded-2xl border border-[#EFE6DA] bg-white px-3 py-2 text-sm text-[#5C544B] outline-none focus:border-[#E8967A]"
+                className="rounded-2xl border border-[#262626] bg-[#141414] px-3 py-2 text-sm text-[#F5F5F5] outline-none focus:border-[#F5F5F5]"
               />
               <input
                 type="number"
@@ -313,7 +313,7 @@ export default function WeightSection({
                 value={historyInput}
                 onChange={(e) => setHistoryInput(e.target.value)}
                 placeholder={weights[historyDate] != null ? weights[historyDate].toFixed(1) : '这一天还没有记录'}
-                className="w-40 rounded-2xl border border-[#EFE6DA] bg-white px-4 py-2 text-sm text-[#5C544B] outline-none focus:border-[#E8967A]"
+                className="w-40 rounded-2xl border border-[#262626] bg-[#141414] px-4 py-2 text-sm text-[#F5F5F5] outline-none focus:border-[#F5F5F5]"
               />
               <button
                 type="button"
@@ -323,7 +323,7 @@ export default function WeightSection({
                   setWeight(historyDate, v)
                   flash('已补录，补上也算数')
                 }}
-                className="rounded-2xl bg-[#8FA383] px-4 py-2 text-xs font-medium text-white hover:bg-[#7C9473]"
+                className="rounded-2xl bg-[#F5F5F5] px-4 py-2 text-xs font-medium text-[#0A0A0A] hover:bg-[#E0E0E0]"
               >
                 保存这一天
               </button>
@@ -335,7 +335,7 @@ export default function WeightSection({
                     setHistoryInput('')
                     flash('已清除这一天的记录')
                   }}
-                  className="text-xs text-[#B4ABA0] underline underline-offset-2 hover:text-[#E8967A]"
+                  className="text-xs text-[#6E6E6E] underline underline-offset-2 hover:text-[#F5F5F5]"
                 >
                   清除
                 </button>
@@ -346,16 +346,16 @@ export default function WeightSection({
       </div>
 
       {/* 曲线 */}
-      <div className="shadow-soft rounded-3xl border border-[#EFE6DA] bg-[#FFFDF9] px-4 py-5 sm:px-6">
+      <div className="shadow-soft rounded-3xl border border-[#262626] bg-[#141414] px-4 py-5 sm:px-6">
         {hasAnyWeight || startWeight != null ? (
           <>
-            <div className="mb-2 flex items-center gap-4 px-2 text-xs text-[#9B9084]">
+            <div className="mb-2 flex items-center gap-4 px-2 text-xs text-[#A3A3A3]">
               <span className="inline-flex items-center gap-1.5">
-                <span className="inline-block h-0.5 w-5 rounded bg-[#E8967A]" />
+                <span className="inline-block h-0.5 w-5 rounded bg-[#F5F5F5]" />
                 实际体重
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="inline-block h-0 w-5 border-t-2 border-dashed border-[#8FA383]" />
+                <span className="inline-block h-0 w-5 border-t-2 border-dashed border-[#6E6E6E]" />
                 目标曲线（贴近真实减重节奏）
               </span>
             </div>
@@ -364,21 +364,21 @@ export default function WeightSection({
               <ComposedChart data={chartData} margin={{ top: 12, right: 12, bottom: 0, left: -18 }}>
                 <defs>
                   <linearGradient id="warmGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F2B8A0" stopOpacity={0.45} />
-                    <stop offset="100%" stopColor="#F2B8A0" stopOpacity={0.02} />
+                    <stop offset="0%" stopColor="#F5F5F5" stopOpacity={0.16} />
+                    <stop offset="100%" stopColor="#F5F5F5" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="#F3EDE3" strokeDasharray="3 6" vertical={false} />
+                <CartesianGrid stroke="#262626" strokeDasharray="3 6" vertical={false} />
                 <XAxis
                   dataKey="label"
                   interval={6}
-                  tick={{ fontSize: 11, fill: '#B4ABA0' }}
+                  tick={{ fontSize: 11, fill: '#6E6E6E' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#EFE6DA' }}
+                  axisLine={{ stroke: '#262626' }}
                 />
                 <YAxis
                   domain={yDomain}
-                  tick={{ fontSize: 11, fill: '#B4ABA0' }}
+                  tick={{ fontSize: 11, fill: '#6E6E6E' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(v: number) => `${v}`}
@@ -386,33 +386,33 @@ export default function WeightSection({
                 <Tooltip content={<CustomTooltip />} />
                 <ReferenceLine
                   y={GOAL_WEIGHT}
-                  stroke="#8FA383"
+                  stroke="#6E6E6E"
                   strokeDasharray="6 4"
                   label={{
                     value: `目标 ${GOAL_WEIGHT}kg`,
                     position: 'insideTopRight',
-                    fill: '#8FA383',
+                    fill: '#6E6E6E',
                     fontSize: 11,
                   }}
                 />
                 <Area
                   type="monotone"
                   dataKey="weight"
-                  stroke="#E8967A"
+                  stroke="#F5F5F5"
                   strokeWidth={2.5}
                   fill="url(#warmGradient)"
                   connectNulls={false}
-                  dot={{ r: 3, fill: '#E8967A', strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: '#DE8465', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ r: 3, fill: '#F5F5F5', strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: '#F5F5F5', stroke: '#0A0A0A', strokeWidth: 2 }}
                 />
                 <Line
                   type="monotone"
                   dataKey="target"
-                  stroke="#8FA383"
+                  stroke="#6E6E6E"
                   strokeWidth={2}
                   strokeDasharray="6 4"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#8FA383', stroke: '#fff', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#6E6E6E', stroke: '#0A0A0A', strokeWidth: 2 }}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -420,8 +420,8 @@ export default function WeightSection({
           </>
         ) : (
           <div className="flex h-48 flex-col items-center justify-center text-center">
-            <CalendarHeart className="mb-3 h-8 w-8 text-[#F2B8A0]" />
-            <p className="text-sm text-[#9B9084]">
+            <CalendarHeart className="mb-3 h-8 w-8 text-[#4A4A4A]" />
+            <p className="text-sm text-[#A3A3A3]">
               先在上面记录起始体重，
               <br />
               目标曲线和体重曲线就会从这里开始生长。
