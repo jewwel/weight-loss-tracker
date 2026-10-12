@@ -3,15 +3,10 @@ import { motion } from 'framer-motion'
 import { addDays, differenceInCalendarDays } from 'date-fns'
 import { Flame, Flower2, Footprints } from 'lucide-react'
 import type { PlanData } from '@/hooks/usePlanData'
-import {
-  EMPTY_CHECKIN,
-  PLAN_END,
-  PLAN_START,
-  dateKey,
-  isFutureDay,
-  weeklyNote,
-} from '@/lib/plan'
+import { EMPTY_CHECKIN, dateKey, isFutureDay, weeklyNote } from '@/lib/plan'
 import type { DayCheckin } from '@/lib/plan'
+import type { WeightPhase } from '@/lib/phase'
+import { parseDateKey, phaseTotalDays } from '@/lib/phase'
 
 const LEVEL_COLORS = [
   '#1C1C1C', // 0/3
@@ -31,15 +26,20 @@ interface Cell {
 export default function Footprint({
   today,
   data,
+  phase,
 }: {
   today: Date
   data: PlanData
+  /** 足迹按当前阶段的时间区间渲染 */
+  phase: WeightPhase
 }) {
   const todayKey = dateKey(today)
+  const phaseStart = useMemo(() => parseDateKey(phase.startDate), [phase.startDate])
+  const totalDays = phaseTotalDays(phase)
 
   const { weeks, streak, totalChecks, fullDays } = useMemo(() => {
-    const total = differenceInCalendarDays(PLAN_END, PLAN_START)
-    const firstWeekday = PLAN_START.getDay() // 首行前面的空格数（周日开头）
+    const total = totalDays - 1
+    const firstWeekday = phaseStart.getDay() // 首行前面的空格数（周日开头）
 
     const getLevel = (key: string): number => {
       const c: DayCheckin = { ...EMPTY_CHECKIN, ...(data.checkins[key] ?? {}) }
@@ -50,7 +50,7 @@ export default function Footprint({
     let checks = 0
     let full = 0
     for (let i = 0; i <= total; i++) {
-      const d = addDays(PLAN_START, i)
+      const d = addDays(phaseStart, i)
       const key = dateKey(d)
       if (isFutureDay(d, today)) {
         cells.push({ key, day: d.getDate(), level: null, date: d, detail: '还没到这一天' })
@@ -72,7 +72,7 @@ export default function Footprint({
     let streakCount = 0
     let cursor = today
     if (getLevel(dateKey(cursor)) < 3) cursor = addDays(cursor, -1)
-    while (cursor >= PLAN_START && getLevel(dateKey(cursor)) === 3) {
+    while (cursor >= phaseStart && getLevel(dateKey(cursor)) === 3) {
       streakCount += 1
       cursor = addDays(cursor, -1)
     }
@@ -87,11 +87,11 @@ export default function Footprint({
     for (let i = 0; i < padded.length; i += 7) weekRows.push(padded.slice(i, i + 7))
 
     return { weeks: weekRows, streak: streakCount, totalChecks: checks, fullDays: full }
-  }, [data.checkins, today])
+  }, [data.checkins, today, phaseStart, totalDays])
 
   const elapsedDays = Math.max(
     0,
-    differenceInCalendarDays(today, PLAN_START) + 1,
+    differenceInCalendarDays(today, phaseStart) + 1,
   )
 
   return (
@@ -105,7 +105,7 @@ export default function Footprint({
       <div className="mb-5">
         <h2 className="font-serif-sc text-2xl font-bold text-[#F5F5F5]">坚持足迹</h2>
         <p className="mt-1 text-sm text-[#A3A3A3]">
-          留下的每一步，都是足迹。
+          「{phase.name}」留下的每一步，都是足迹。
         </p>
       </div>
 
@@ -131,7 +131,10 @@ export default function Footprint({
       {/* 热力网格 */}
       <div className="shadow-soft rounded-3xl border border-[#262626] bg-[#141414] px-4 py-5 sm:px-6">
         <div className="mb-3 flex items-center justify-between text-xs text-[#6E6E6E]">
-          <span>07-28 → 09-15 · 已陪伴 {Math.min(elapsedDays, 50)} 天</span>
+          <span>
+            {phase.startDate.slice(5)} → {phase.endDate.slice(5)} · 已陪伴{' '}
+            {Math.min(elapsedDays, totalDays)} 天
+          </span>
           <span className="flex items-center gap-1.5">
             少
             {LEVEL_COLORS.map((c) => (

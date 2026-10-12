@@ -10,7 +10,7 @@ import {
   MonitorPlay,
   Scale,
 } from 'lucide-react'
-import { usePlanData } from '@/hooks/usePlanData'
+import { usePlanData, PHASE_SETUP_HINT } from '@/hooks/usePlanData'
 import { dateKey } from '@/lib/plan'
 import { supabaseConfigured } from '@/lib/supabase'
 import Hero from '@/components/Hero'
@@ -50,11 +50,21 @@ export default function Home() {
     importLegacy,
     dismissLegacy,
     importPending,
+    phase,
+    phases,
+    archivedPhases,
+    needsNewPhase,
+    needsPhaseSetup,
+    phaseSaving,
+    createPhase,
+    updateActivePhase,
+    currentWeight,
+    earliestDate,
   } = usePlanData()
 
   return (
     <div className="min-h-[100dvh] bg-[#0A0A0A] pb-16">
-      <Hero today={today} />
+      <Hero today={today} phase={phase} />
 
       {/* 功能切换 */}
       <div className="mx-auto mt-2 flex max-w-3xl justify-center px-5">
@@ -177,17 +187,30 @@ export default function Home() {
                   checkins={data.checkins}
                   weights={data.weights}
                   onToggle={toggleCheck}
+                  phase={phase}
+                  minDate={earliestDate}
                 />
 
                 <WeightSection
                   today={today}
                   data={data}
+                  phase={phase}
+                  phases={phases}
+                  archivedPhases={archivedPhases}
+                  needsNewPhase={needsNewPhase}
+                  needsPhaseSetup={needsPhaseSetup}
+                  setupHint={PHASE_SETUP_HINT}
+                  phaseSaving={phaseSaving}
+                  currentWeight={currentWeight}
+                  earliestDate={earliestDate}
                   setStartWeight={setStartWeight}
                   setWeight={setWeight}
                   removeWeight={removeWeight}
+                  createPhase={createPhase}
+                  updateActivePhase={updateActivePhase}
                 />
 
-                <Footprint today={today} data={data} />
+                <Footprint today={today} data={data} phase={phase} />
               </main>
 
               <footer className="mx-auto mt-8 max-w-3xl px-5">
@@ -206,7 +229,7 @@ export default function Home() {
                   </p>
                 </div>
                 <p className="mt-6 text-center text-xs text-[#6E6E6E]">
-                  轻盈计划 · 2026-07-28 → 2026-09-15 · 慢慢来，今天也很好
+                  轻盈计划 · {phase.name} · {phase.startDate} → {phase.endDate} · 慢慢来，今天也很好
                 </p>
               </footer>
             </>

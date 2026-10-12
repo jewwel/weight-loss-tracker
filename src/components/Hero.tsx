@@ -1,7 +1,9 @@
 import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { Sprout, Quote } from 'lucide-react'
-import { daysLeft, todaySlogan, weekdayCN, PLAN_END } from '@/lib/plan'
+import { SLOGANS, weekdayCN } from '@/lib/plan'
+import type { WeightPhase } from '@/lib/phase'
+import { parseDateKey, phaseDayIndex, phaseDaysLeft, phaseTotalDays } from '@/lib/phase'
 import { format } from 'date-fns'
 
 /** 漂浮装饰：隔离的 memo 组件，避免父级重渲染重置动画 */
@@ -70,10 +72,17 @@ const FloatingFlower = memo(function FloatingFlower({
   )
 })
 
-export default function Hero({ today }: { today: Date }) {
-  const left = daysLeft(today)
+export default function Hero({ today, phase }: { today: Date; phase: WeightPhase }) {
+  const left = phaseDaysLeft(today, phase)
   const ended = left === 0
-  const slogan = todaySlogan(today)
+  const notStarted = today < parseDateKey(phase.startDate)
+  const slogan = SLOGANS[phaseDayIndex(today, phase) % SLOGANS.length]
+  const progress = Math.round(
+    Math.min(
+      1,
+      Math.max(0, (phaseDayIndex(today, phase) + 1) / Math.max(1, phaseTotalDays(phase))),
+    ) * 100,
+  )
 
   return (
     <section className="relative overflow-hidden px-5 pt-14 pb-10 sm:pt-20">
@@ -88,7 +97,7 @@ export default function Hero({ today }: { today: Date }) {
         >
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#1C1C1C] px-4 py-1.5 text-sm text-[#A3A3A3]">
             <Sprout className="h-4 w-4" />
-            温柔地，走向更好的自己
+            {phase.name} · 温柔地，走向更好的自己
           </div>
           <h1 className="font-serif-sc text-4xl font-bold tracking-wide text-[#F5F5F5] sm:text-5xl">
             轻盈计划
@@ -104,22 +113,36 @@ export default function Hero({ today }: { today: Date }) {
           transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="mt-8"
         >
-          {ended ? (
+          {notStarted ? (
             <p className="font-serif-sc text-2xl font-semibold text-[#F5F5F5] sm:text-3xl">
-              计划日已到，回头看看，
-              <br className="sm:hidden" />
-              你已经走了很远。
+              「{phase.name}」从 {format(parseDateKey(phase.startDate), 'M月d日')} 开始
             </p>
+          ) : ended ? (
+            <div>
+              <p className="font-serif-sc text-2xl font-semibold text-[#F5F5F5] sm:text-3xl">
+                这一阶段到期了，回头看看，
+                <br className="sm:hidden" />
+                你已经走了很远。
+              </p>
+              <p className="mt-3 text-sm text-[#A3A3A3]">
+                去「体重记录」里归档它，再开一个新阶段吧。
+              </p>
+            </div>
           ) : (
-            <p className="font-serif-sc text-[#F5F5F5]">
-              <span className="text-xl sm:text-2xl">
-                距离 {format(PLAN_END, 'M月d日')} 还有
-              </span>
-              <span className="mx-2 align-baseline text-6xl font-black text-[#F5F5F5] sm:text-7xl">
-                {left}
-              </span>
-              <span className="text-xl sm:text-2xl">天</span>
-            </p>
+            <div>
+              <p className="font-serif-sc text-[#F5F5F5]">
+                <span className="text-xl sm:text-2xl">
+                  距离 {format(parseDateKey(phase.endDate), 'M月d日')} 还有
+                </span>
+                <span className="mx-2 align-baseline text-6xl font-black text-[#F5F5F5] sm:text-7xl">
+                  {left}
+                </span>
+                <span className="text-xl sm:text-2xl">天</span>
+              </p>
+              <p className="mt-2 text-xs text-[#6E6E6E]">
+                {phase.name} 已走过 {progress}%
+              </p>
+            </div>
           )}
         </motion.div>
 

@@ -49,17 +49,27 @@ const TARGET_ANCHORS: Array<[number, number]> = [
   [1, 1], // 后期放缓，抵达目标
 ]
 
-export function targetWeightAt(dayIdx: number, startWeight: number): number {
-  const total = differenceInCalendarDays(PLAN_END, PLAN_START)
-  const toLose = startWeight - GOAL_WEIGHT
-  if (total <= 0 || toLose <= 0) return startWeight
-  const x = Math.min(Math.max(dayIdx / total, 0), 1)
+export function targetWeightCurve(
+  dayIdx: number,
+  startWeight: number,
+  goalWeight: number,
+  totalDays: number,
+): number {
+  const toLose = startWeight - goalWeight
+  if (totalDays <= 0 || toLose <= 0) return startWeight
+  const x = Math.min(Math.max(dayIdx / totalDays, 0), 1)
   let i = 1
   while (i < TARGET_ANCHORS.length - 1 && TARGET_ANCHORS[i][0] < x) i++
   const [x0, y0] = TARGET_ANCHORS[i - 1]
   const [x1, y1] = TARGET_ANCHORS[i]
   const progress = y0 + ((y1 - y0) * (x - x0)) / (x1 - x0)
   return Math.round((startWeight - toLose * progress) * 10) / 10
+}
+
+/** 旧版（单阶段）目标曲线：沿用最初写死的计划区间与 65kg 目标 */
+export function targetWeightAt(dayIdx: number, startWeight: number): number {
+  const total = differenceInCalendarDays(PLAN_END, PLAN_START)
+  return targetWeightCurve(dayIdx, startWeight, GOAL_WEIGHT, total)
 }
 
 export const isFutureDay = (d: Date, today: Date): boolean =>

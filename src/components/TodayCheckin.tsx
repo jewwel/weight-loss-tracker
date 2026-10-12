@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Dumbbell, Footprints, Salad, Scale, PartyPopper, Undo2 } from 'lucide-react'
 import type { CheckKey, DayCheckin } from '@/lib/plan'
-import { EMPTY_CHECKIN, PLAN_START, dateKey, randomPraise, todayExercise, weekdayCN } from '@/lib/plan'
+import { EMPTY_CHECKIN, randomPraise, todayExercise, weekdayCN } from '@/lib/plan'
+import type { WeightPhase } from '@/lib/phase'
+import { keyInPhase } from '@/lib/phase'
 import { cn } from '@/lib/utils'
 
 interface Item {
@@ -58,11 +60,17 @@ export default function TodayCheckin({
   checkins,
   weights,
   onToggle,
+  phase,
+  minDate,
 }: {
   todayKey: string
   checkins: Record<string, Partial<DayCheckin>>
   weights: Record<string, number>
   onToggle: (key: string, item: CheckKey) => boolean
+  /** 当前阶段（用于提示这一天是否落在阶段区间内） */
+  phase: WeightPhase
+  /** 可以补打卡的最早日期（所有阶段里最早的那天） */
+  minDate: string
 }) {
   const [selectedKey, setSelectedKey] = useState(todayKey)
   const isToday = selectedKey === todayKey
@@ -146,7 +154,7 @@ export default function TodayCheckin({
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <input
             type="date"
-            min={dateKey(PLAN_START)}
+            min={minDate}
             max={todayKey}
             value={selectedKey}
             onChange={(e) => {
@@ -154,6 +162,11 @@ export default function TodayCheckin({
             }}
             className="rounded-2xl border border-[#262626] bg-[#141414] px-3 py-2 text-sm text-[#F5F5F5] outline-none focus:border-[#F5F5F5]"
           />
+          {!keyInPhase(selectedKey, phase) && (
+            <span className="rounded-full bg-[#1C1C1C] px-3 py-1 text-xs text-[#6E6E6E]">
+              这一天属于其他阶段
+            </span>
+          )}
           {isToday ? (
             <span className="text-xs text-[#6E6E6E]">忘了打卡？选个以前的日期补上就好</span>
           ) : (
