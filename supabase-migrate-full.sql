@@ -258,6 +258,7 @@ create policy "own weight_phases" on weight_phases
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- 给已有数据的老用户补一个「第 1 阶段」，沿用原来的计划区间（幂等）
+-- 注意：null 必须显式转型，否则 Postgres 会推断成 text 并报 42804 类型不匹配。
 insert into weight_phases (user_id, name, start_date, end_date, start_weight, goal_weight, status)
 select ps.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', ps.start_weight, 65, 'active'
 from plan_settings ps
@@ -266,14 +267,14 @@ where not exists (
 );
 
 insert into weight_phases (user_id, name, start_date, end_date, start_weight, goal_weight, status)
-select distinct we.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null, 65, 'active'
+select distinct we.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null::double precision, 65, 'active'
 from weight_entries we
 where not exists (
   select 1 from weight_phases wp where wp.user_id = we.user_id
 );
 
 insert into weight_phases (user_id, name, start_date, end_date, start_weight, goal_weight, status)
-select distinct c.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null, 65, 'active'
+select distinct c.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null::double precision, 65, 'active'
 from checkins c
 where not exists (
   select 1 from weight_phases wp where wp.user_id = c.user_id

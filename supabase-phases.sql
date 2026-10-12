@@ -44,8 +44,10 @@ where not exists (
 );
 
 -- 5. 有体重记录但没有 plan_settings 记录的用户，同样补一个
+--    注意：start_weight 必须写成 null::double precision，否则 Postgres 会把裸 null
+--    推断成 text，报 42804「column is of type double precision but expression is of type text」。
 insert into weight_phases (user_id, name, start_date, end_date, start_weight, goal_weight, status)
-select distinct we.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null, 65, 'active'
+select distinct we.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null::double precision, 65, 'active'
 from weight_entries we
 where not exists (
   select 1 from weight_phases wp where wp.user_id = we.user_id
@@ -53,7 +55,7 @@ where not exists (
 
 -- 6. 有打卡记录但没有 plan_settings 记录的用户，也补一个
 insert into weight_phases (user_id, name, start_date, end_date, start_weight, goal_weight, status)
-select distinct c.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null, 65, 'active'
+select distinct c.user_id, '第 1 阶段', '2026-07-28', '2026-09-15', null::double precision, 65, 'active'
 from checkins c
 where not exists (
   select 1 from weight_phases wp where wp.user_id = c.user_id
